@@ -118,33 +118,51 @@ def get_formats():
             formats = []
             
             for f in info.get('formats', []):
-                # Filter for useful formats (video + audio or just specific high qualities)
-                if f.get('vcodec') != 'none' and f.get('acodec') != 'none':
+                # We want video formats with resolution
+                if f.get('vcodec') != 'none':
                     res = f.get('height')
-                    if res in [360, 480, 720, 1080]:
+                    if res and res in [360, 480, 720, 1080, 1440, 2160]:
+                        # Check if it has audio or if it's video-only
+                        has_audio = f.get('acodec') != 'none'
+                        
                         formats.append({
                             'id': f.get('format_id'),
                             'ext': f.get('ext'),
                             'quality': f'{res}p',
-                            'note': f.get('format_note'),
-                            'filesize': f.get('filesize_approx') or f.get('filesize')
+                            'note': f.get('format_note', ''),
+                            'filesize': f.get('filesize_approx') or f.get('filesize'),
+                            'has_audio': has_audio
                         })
             
-            # Sort by quality
+            # Sort by quality (highest first)
             formats.sort(key=lambda x: int(x['quality'].replace('p', '')), reverse=True)
             
-            # Deduplicate by quality
-            seen_quality = set()
+            # Deduplicate by quality, preferring formats with audio if available
             unique_formats = []
+            seen_quality = {}
             for f in formats:
-                if f['quality'] not in seen_quality:
+                q = f['quality']
+                if q not in seen_quality:
                     unique_formats.append(f)
-                    seen_quality.add(f['quality'])
+                    seen_quality[q] = f
+                else:
+                    # If we found a format with the same quality, prefer the one with audio
+                    if f['has_audio'] and not seen_quality[q]['has_audio']:
+                        idx = next(i for i, x in enumerate(unique_formats) if x['quality'] == q)
+                        unique_formats[idx] = f
+                        seen_quality[q] = f
 
             return jsonify({
                 'title': info.get('title'),
                 'thumbnail': info.get('thumbnail'),
-                'formats': unique_formats
+                'formats': [{
+                    'id': f['id'],
+                    'ext': 'mp4' if not f['has_audio'] else f['ext'],
+                    'quality': f['quality'],
+                    'note': f'Video + Audio' if f['has_audio'] else 'HD (Video Only)',
+                    'filesize': f['filesize'],
+                    'needs_merge': not f['has_audio']
+                } for f in unique_formats]
             })
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -162,7 +180,6 @@ def start_download():
     job_id = str(uuid.uuid4())
     update_job_status(job_id, 'starting', "Starting process...")
 
-    format_opts = {}
     if type == 'audio':
         format_opts = {
             'format_id': 'bestaudio/best',
@@ -174,10 +191,17 @@ def start_download():
             }]
         }
     else:
-        # For video, we might need to merge bestvideo+bestaudio if format_id is just video
-        format_opts = {
-            'format_id': f'{format_id}+bestaudio/best' if format_id else 'bestvideo+bestaudio/best'
-        }
+        # If we have a specific format_id, use it. 
+        # By default, use bestvideo+bestaudio.
+        # We append /best for safety if the specific ID isn't available for some reason.
+        if format_id:
+            format_opts = {
+                'format_id': f'{format_id}+bestaudio/best'
+            }
+        else:
+            format_opts = {
+                'format_id': 'bestvideo+bestaudio/best'
+            }
 
     thread = threading.Thread(target=download_task, args=(job_id, url, format_opts))
     thread.start()
