@@ -10,9 +10,17 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 CORS(app)
 
 # Configuration
-DOWNLOAD_FOLDER = os.path.join(os.getcwd(), 'downloads')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DOWNLOAD_FOLDER = os.path.join(BASE_DIR, 'downloads')
+COOKIE_FILE = os.path.join(BASE_DIR, 'cookies.txt')
+
 if not os.path.exists(DOWNLOAD_FOLDER):
     os.makedirs(DOWNLOAD_FOLDER)
+
+if os.path.exists(COOKIE_FILE):
+    print(f"--- COOKIE FILE FOUND: {COOKIE_FILE} ---")
+else:
+    print(f"--- COOKIE FILE NOT FOUND! Checked path: {COOKIE_FILE} ---")
 
 # In-memory storage for job statuses
 # In production, use Redis or a database
@@ -49,7 +57,7 @@ def download_task(job_id, url, format_opts):
             # Bypass 403 Forbidden and other YouTube restrictions
             'extractor_args': {
                 'youtube': {
-                    'player_client': ['android', 'web', 'mweb', 'ios'],
+                    'player_client': ['ios', 'android'],
                     'player_skip_bundle_url': True,
                 }
             },
@@ -57,15 +65,14 @@ def download_task(job_id, url, format_opts):
             'quiet': False,
             'no_warnings': False,
             'http_headers': {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Accept-Language': 'en-us,en;q=0.5',
-                'Sec-Fetch-Mode': 'navigate',
             },
             # Disable cache to avoid persistent bot detection errors
             'cachedir': False,
-            # Use cookies.txt only if manually provided (avoids DPAPI error)
-            'cookiefile': 'cookies.txt' if os.path.exists('cookies.txt') else None,
+            # Use cookies.txt only if manually provided
+            'cookiefile': COOKIE_FILE if os.path.exists(COOKIE_FILE) else None,
             # Ensure ffmpeg is used for merging/converting
             'postprocessors': format_opts.get('postprocessors', [])
         }
@@ -112,14 +119,14 @@ def get_formats():
         ydl_opts = {
             'extractor_args': {
                 'youtube': {
-                    'player_client': ['android', 'web', 'mweb', 'ios'],
+                    'player_client': ['ios', 'android'],
                     'player_skip_bundle_url': True,
                 }
             },
             'http_headers': {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
             },
-            'cookiefile': 'cookies.txt' if os.path.exists('cookies.txt') else None,
+            'cookiefile': COOKIE_FILE if os.path.exists(COOKIE_FILE) else None,
             'cachedir': False,
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
