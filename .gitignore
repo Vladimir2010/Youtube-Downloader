@@ -1,0 +1,11 @@
+/python_desktop/build/
+/python_desktop/dist/
+/python_desktop/Setup/
+/python_desktop/setup_script.iss
+/python_desktop/YoutubeDownloader_Setup.iss
+/python_desktop/YoutubeDownloaderSetup.exe
+/.venv/
+.idea/
+/VladPos_YT_Downloader/downloads/
+/VladPos_YT_Downloader/cookies.txt
+/python_desktop/ss.iss
