@@ -3,7 +3,9 @@
     "short_name": "YTDownloader",
     "description": "Download YouTube videos and music easily.",
     "start_url": "/",
+    "scope": "/",
     "display": "standalone",
+    "orientation": "portrait",
     "background_color": "#121212",
     "theme_color": "#bb86fc",
     "icons": [
