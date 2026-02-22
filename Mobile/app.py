@@ -57,17 +57,18 @@ def download_task(job_id, url, format_opts):
             # Bypass 403 Forbidden and other YouTube restrictions
             'extractor_args': {
                 'youtube': {
-                    'player_client': ['ios', 'android'],
+                    'player_client': ['android'],
                     'player_skip_bundle_url': True,
+                    'skip': ['webpage', 'hls', 'dash-manifest'],
                 }
             },
             'nocheckcertificate': True,
             'quiet': False,
             'no_warnings': False,
             'http_headers': {
-                'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Accept-Language': 'en-us,en;q=0.5',
+                'User-Agent': 'com.google.android.youtube/19.29.37 (Linux; U; Android 11; en_US) gzip',
+                'Accept': '*/*',
+                'Accept-Language': 'en-US,en;q=0.9',
             },
             # Disable cache to avoid persistent bot detection errors
             'cachedir': False,
@@ -119,12 +120,13 @@ def get_formats():
         ydl_opts = {
             'extractor_args': {
                 'youtube': {
-                    'player_client': ['ios', 'android'],
+                    'player_client': ['android'],
                     'player_skip_bundle_url': True,
+                    'skip': ['webpage', 'hls', 'dash-manifest'],
                 }
             },
             'http_headers': {
-                'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
+                'User-Agent': 'com.google.android.youtube/19.29.37 (Linux; U; Android 11; en_US) gzip',
             },
             'cookiefile': COOKIE_FILE if os.path.exists(COOKIE_FILE) else None,
             'cachedir': False,
