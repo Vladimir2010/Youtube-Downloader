@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Downloader - Premium Tool</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <meta name="theme-color" content="#bb86fc">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="background-glow"></div>
+
+    <div class="container">
+        <header>
+            <h1>Video<span>Downloader</span></h1>
+            <p>Fast and easy YouTube video downloader for educational use.</p>
+        </header>
+
+        <main>
+            <div class="input-card">
+                <div class="input-group">
+                    <input type="text" id="url-input" placeholder="Paste YouTube link here..." autocomplete="off">
+                    <button id="analyze-btn">Analyze</button>
+                </div>
+                <div id="error-msg" class="error"></div>
+            </div>
+
+            <div id="video-info" class="video-info-card hidden">
+                <div class="thumbnail-container">
+                    <img id="video-thumbnail" src="" alt="Thumbnail">
+                </div>
+                <div class="details">
+                    <h2 id="video-title"></h2>
+                    <div class="options">
+                        <div class="option-group">
+                            <label>Download Type:</label>
+                            <select id="type-select">
+                                <option value="video">Video + Audio (MP4)</option>
+                                <option value="audio">Audio Only (MP3)</option>
+                            </select>
+                        </div>
+                        <div class="option-group" id="quality-group">
+                            <label>Quality:</label>
+                            <select id="quality-select"></select>
+                        </div>
+                    </div>
+                    <button id="download-btn">Start Download</button>
+                </div>
+            </div>
+
+            <div id="progress-container" class="progress-card hidden">
+                <h3>Downloading...</h3>
+                <div class="progress-bar-bg">
+                    <div id="progress-bar-fill"></div>
+                </div>
+                <p id="status-text">Waiting for server...</p>
+                <div id="final-link" class="hidden">
+                    <a id="download-link" href="#" class="final-btn" target="_blank">Download File</a>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 VladPos YouTube Downloader</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register("{{ url_for('static', filename='service-worker.js') }}")
+                    .then(reg => console.log('Service Worker registered'))
+                    .catch(err => console.log('Service Worker failed', err));
+            });
+        }
+    </script>
+</body>
+
+</html>

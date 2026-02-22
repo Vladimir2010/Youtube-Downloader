@@ -1,0 +1,21 @@
+{
+    "name": "YouTube Downloader Pro",
+    "short_name": "YTDownloader",
+    "description": "Download YouTube videos and music easily.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#121212",
+    "theme_color": "#bb86fc",
+    "icons": [
+        {
+            "src": "/static/icon-192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/static/icon-512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
