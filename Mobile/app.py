@@ -62,6 +62,8 @@ def download_task(job_id, url, format_opts):
                 'Accept-Language': 'en-us,en;q=0.5',
                 'Sec-Fetch-Mode': 'navigate',
             },
+            # Disable cache to avoid persistent bot detection errors
+            'cachedir': False,
             # Use cookies.txt only if manually provided (avoids DPAPI error)
             'cookiefile': 'cookies.txt' if os.path.exists('cookies.txt') else None,
             # Ensure ffmpeg is used for merging/converting
@@ -69,6 +71,12 @@ def download_task(job_id, url, format_opts):
         }
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            # Clear cache explicitly as suggested in forums
+            try:
+                ydl.cache.remove()
+            except:
+                pass
+            
             info = ydl.extract_info(url, download=True)
             filename = ydl.prepare_filename(info)
             
@@ -112,8 +120,15 @@ def get_formats():
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             },
             'cookiefile': 'cookies.txt' if os.path.exists('cookies.txt') else None,
+            'cachedir': False,
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            # Clear cache explicitly
+            try:
+                ydl.cache.remove()
+            except:
+                pass
+            
             info = ydl.extract_info(url, download=False)
             formats = []
             
